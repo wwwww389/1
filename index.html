@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>我的专属祝福</title>
+    
+    <!-- 这里是样式区域 (CSS) -->
+    <style>
+        /* 1. 清除默认边距，设置浪漫星空背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 隐藏滚动条 */
+            font-family: "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1a0b2e, #2b1055, #7597de); /* 星空渐变背景 */
+        }
+
+        /* 2. 让祝福文字在屏幕正中间显示 */
+        #wishes {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 10; /* 确保文字在烟花上面 */
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8); /* 文字发光 */
+            pointer-events: none; /* 鼠标点文字也能穿透放烟花 */
+        }
+
+        /* 3. 标题大小和跳动动画 */
+        #wishes h1 {
+            font-size: 45px;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        #wishes p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        /* 跳动动画特效 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 这里是网页上的文字内容 -->
+    <div id="wishes">
+        <h1>i like you</h1>
+        <p></p>
+    </div>
+
+    <!-- 这里是放烟花的画布 -->
+    <canvas id="fireworks"></canvas>
+
+    <!-- 这里是放烟花的逻辑区域 (JavaScript) -->
+    <script>
+        var canvas = document.getElementById('fireworks');
+        var ctx = canvas.getContext('2d');
+        var W = window.innerWidth;
+        var H = window.innerHeight;
+        canvas.width = W;
+        canvas.height = H;
+
+        var particles = [];
+
+        function boom(x, y) {
+            for (var i = 0; i < 60; i++) {
+                var angle = (Math.PI * 2 / 60) * i;
+                var speed = Math.random() * 5 + 2;
+                particles.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1,
+                    color: `hsl(${Math.random() * 360}, ${70 + Math.random() * 30}%, ${40 + Math.random() * 60}%)`
+                });
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, W, H);
+
+            for (var i = 0; i < particles.length; i++) {
+                var p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.05;
+                p.life -= 0.015;
+
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                    continue;
+                }
+
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(animate);
+        }
+
+        canvas.addEventListener('click', function(e) {
+            boom(e.clientX, e.clientY);
+        });
+
+        // 页面一打开先自动放一个烟花演示
+        boom(W / 2, H / 2);
+        animate(); 
+    </script>
+</body>
+</html>
